@@ -41,6 +41,16 @@ make -f Makefile.portfolio runtime-test
 
 In this Codex sandbox on macOS, the `smoke_buffer` runtime binary can hang even though the source compiles. Keep runtime execution as a review gate for a normal local terminal or Linux environment before publication.
 
+## Publication Handoff
+
+After the empty GitHub repo `PeterNgabaRepo/operating-systems-circular-buffer` exists and GitHub CLI/HTTPS authentication is configured, the guarded push helper can publish this checkpointed repo:
+
+```bash
+scripts/push_to_github.sh "APPROVE OS REPO"
+```
+
+The helper refuses to push if the approval phrase is wrong, the working tree is dirty, the target repo is unreachable, or `origin` points somewhere unexpected.
+
 ## Notes
 
 - The kernel syscall files are preserved as coursework artifacts but are not rebuilt in this macOS environment.

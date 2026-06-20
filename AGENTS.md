@@ -13,6 +13,7 @@ Maintain this as a clean, job-facing coursework candidate demonstrating C system
 - Preferred local check: `make -f Makefile.portfolio test`.
 - Runtime smoke checks are optional because direct runtime execution has hung in the Codex/macOS sandbox.
 - If runtime behavior needs final proof, run it in a normal terminal or Linux-like environment and log the result.
+- GitHub push helper: `scripts/push_to_github.sh "APPROVE OS REPO"`; it refuses to push unless the local repo is clean, the target repo exists, and the approval phrase matches exactly.
 
 ## Handoff
 Return files changed, checks run, findings, blockers, and next recommended action.
