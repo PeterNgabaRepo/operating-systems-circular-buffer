@@ -62,6 +62,28 @@ def main() -> None:
         if "!buffer.read && !buffer.write" in source:
             errors.append(f"{rel} uses && for missing-pointer guard; use || to catch half-initialized state")
 
+    sem_header = (ROOT / "prodcon_sem/buffer_sem.h").read_text(encoding="utf-8", errors="replace")
+    if "long enqueue_buffer_421(const void *data);" not in sem_header:
+        errors.append("prodcon_sem/buffer_sem.h should expose enqueue_buffer_421 as const void *")
+    if "long dequeue_buffer_421(void *data);" not in sem_header:
+        errors.append("prodcon_sem/buffer_sem.h should expose dequeue_buffer_421 as void *")
+
+    sem_source = (ROOT / "prodcon_sem/buffer_user_sem.c").read_text(encoding="utf-8", errors="replace")
+    if "memcpy(buffer.write->data, data, DATA_LENGTH)" not in sem_source:
+        errors.append("prodcon_sem/buffer_user_sem.c should copy DATA_LENGTH bytes on enqueue")
+    if "memcpy(data, buffer.read->data, DATA_LENGTH)" not in sem_source:
+        errors.append("prodcon_sem/buffer_user_sem.c should copy DATA_LENGTH bytes on dequeue")
+    for phrase in ["sem421_init", "sem421_wait", "sem421_post", "sem421_getvalue"]:
+        if phrase not in sem_source:
+            errors.append(f"prodcon_sem/buffer_user_sem.c missing local semaphore wrapper: {phrase}")
+
+    sem_smoke = (ROOT / "tests/smoke_sem.c").read_text(encoding="utf-8", errors="replace")
+    if "memcmp(data, expected, DATA_LENGTH)" not in sem_smoke:
+        errors.append("tests/smoke_sem.c should verify byte-for-byte semaphore buffer output")
+    for phrase in ["WRAP_EXTRA", "SIZE_OF_BUFFER + WRAP_EXTRA", "pre-wrap dequeued data mismatch", "post-wrap dequeued data mismatch"]:
+        if phrase not in sem_smoke:
+            errors.append(f"tests/smoke_sem.c missing full/wraparound validation phrase: {phrase}")
+
     if errors:
         print("os candidate validation failed")
         for error in errors:

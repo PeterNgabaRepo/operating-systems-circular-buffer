@@ -6,6 +6,7 @@
 //#include <semaphore.h>
 #include "buffer_sem.h"
 #include <linux/semaphore.h>
+#include <linux/uaccess.h>
 
 static bb_buffer_421_t buffer;
 static struct semaphore  mutex;
@@ -62,10 +63,15 @@ SYSCALL_DEFINE0(init_buffer_sem_421) {
 }
 
 
-SYSCALL_DEFINE1(enqueue_buffer_sem_421, char*, data) {
+SYSCALL_DEFINE1(enqueue_buffer_sem_421, void __user *, data) {
 	// Write your code to enqueue data into the buffer
 //	buffer.length = 0;
-	if(!buffer.read && !buffer.write){
+	if(!data){
+		printk("Cannot enqueue null data\n");
+		return -1;
+	}
+
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized\n");
 		return -1;
 	}
@@ -77,22 +83,18 @@ SYSCALL_DEFINE1(enqueue_buffer_sem_421, char*, data) {
 
 	waiting = 1;
 
+	struct bb_node_421 *write_node = buffer.write;
+	if(copy_from_user(write_node->data, data, DATA_LENGTH)){
+		up(&mutex);
+		up(&empty_count);
+		return -EFAULT;
+	}
 	buffer.length++;
-	memcpy(buffer.write->data, data, 1024);
 	buffer.write = buffer.write->next;
 
 //	print_semaphores();
 
-	printk("ENQUEUING: ");
-	int i;
-/*	for(i = 0; i < DATA_LENGTH; i++){
-		printk("%c", data[i]);
-	}
-*/
-
-	printk("%c", data[0]);
-
-	printk("\n");
+	printk("ENQUEUING: %d bytes (first=0x%02x)\n", DATA_LENGTH, write_node->data[0]);
 
 	up(&fill_count);
 
@@ -101,11 +103,16 @@ SYSCALL_DEFINE1(enqueue_buffer_sem_421, char*, data) {
 	return 0;
 }
 
-SYSCALL_DEFINE1(dequeue_buffer_sem_421, char*, data) {
+SYSCALL_DEFINE1(dequeue_buffer_sem_421, void __user *, data) {
 
 	// Write your code to dequeue data from the buffer
 
-	if(!buffer.read && !buffer.write){
+	if(!data){
+		printk("Cannot dequeue into null data\n");
+		return -1;
+	}
+
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized\n");
 		return -1;
 	}
@@ -117,23 +124,15 @@ SYSCALL_DEFINE1(dequeue_buffer_sem_421, char*, data) {
 
 	waiting = 1;
 
-	printk("\n");
-	printk("DEQUEUING: ");
+	printk("DEQUEUING: %d bytes (first=0x%02x)\n", DATA_LENGTH, buffer.read->data[0]);
 
-	memcpy(data, buffer.read->data, 1024);
+	if(copy_to_user(data, buffer.read->data, DATA_LENGTH)){
+		up(&mutex);
+		up(&fill_count);
+		return -EFAULT;
+	}
 	buffer.read = buffer.read->next;
 	buffer.length--;
-
-	int i;
-
-/*
-	for(i = 0; i < DATA_LENGTH; i++){
-		printk("%c", data[i]);
-	}
-*/
-	printk("%c", data[0]);
-
-	printk("\n");
 
 //	print_semaphores();
 
@@ -154,7 +153,7 @@ SYSCALL_DEFINE0(delete_buffer_sem_421) {
 		return -1;
 	}
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized\n");
 		return -1;
 	}

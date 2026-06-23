@@ -16,7 +16,7 @@ extern "C" {
 
 typedef struct bb_node_421 {
     struct bb_node_421 *next;
-    char data[DATA_LENGTH];
+    unsigned char data[DATA_LENGTH];
 } bb_node_421_t;
 
 typedef struct bb_buffer_421 {
@@ -27,8 +27,8 @@ typedef struct bb_buffer_421 {
 
 #ifndef __KERNEL__
 long init_buffer_421(void);
-long enqueue_buffer_421(char *data);
-long dequeue_buffer_421(char *data);
+long enqueue_buffer_421(const void *data);
+long dequeue_buffer_421(void *data);
 long delete_buffer_421(void);
 void print_semaphores(void);
 #endif
