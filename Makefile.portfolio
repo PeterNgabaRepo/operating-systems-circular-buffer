@@ -36,9 +36,12 @@ validate:
 test: validate compile
 
 runtime-test: compile
-	$(TIMEOUT) $(BUILD_DIR)/smoke_buffer
-	$(TIMEOUT) $(BUILD_DIR)/smoke_sem
-	$(TIMEOUT) $(BUILD_DIR)/smoke_mon
+	@printf '\n===== smoke_buffer: simple circular buffer =====\n'
+	@$(TIMEOUT) $(BUILD_DIR)/smoke_buffer
+	@printf '\n===== smoke_sem: semaphore producer-consumer =====\n'
+	@$(TIMEOUT) $(BUILD_DIR)/smoke_sem
+	@printf '\n===== smoke_mon: monitor producer-consumer =====\n'
+	@$(TIMEOUT) $(BUILD_DIR)/smoke_mon
 
 clean:
 	rm -rf $(BUILD_DIR)

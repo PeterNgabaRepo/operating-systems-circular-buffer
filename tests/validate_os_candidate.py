@@ -54,6 +54,13 @@ def main() -> None:
     for target in ["smoke_buffer", "smoke_sem", "smoke_mon", "compile", "validate", "runtime-test", "clean"]:
         if target not in makefile:
             errors.append(f"Makefile.portfolio missing target/content: {target}")
+    for heading in [
+        "smoke_buffer: simple circular buffer",
+        "smoke_sem: semaphore producer-consumer",
+        "smoke_mon: monitor producer-consumer",
+    ]:
+        if heading not in makefile:
+            errors.append(f"Makefile.portfolio runtime-test missing readable output heading: {heading}")
 
     for rel in SIMPLE_BUFFER_INVARIANT_FILES:
         source = (ROOT / rel).read_text(encoding="utf-8", errors="replace")
