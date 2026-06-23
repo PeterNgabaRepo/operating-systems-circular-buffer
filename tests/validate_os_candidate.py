@@ -28,6 +28,11 @@ README_PHRASES = [
     "kernel syscall files",
 ]
 
+SIMPLE_BUFFER_INVARIANT_FILES = [
+    "buffer/buffer_user.c",
+    "buffer/buffer.c",
+]
+
 
 def main() -> None:
     errors: list[str] = []
@@ -49,6 +54,13 @@ def main() -> None:
     for target in ["smoke_buffer", "smoke_sem", "smoke_mon", "compile", "validate", "runtime-test", "clean"]:
         if target not in makefile:
             errors.append(f"Makefile.portfolio missing target/content: {target}")
+
+    for rel in SIMPLE_BUFFER_INVARIANT_FILES:
+        source = (ROOT / rel).read_text(encoding="utf-8", errors="replace")
+        if "buffer.read = buffer.read->next" in source:
+            errors.append(f"{rel} mutates buffer.read directly inside traversal")
+        if "!buffer.read && !buffer.write" in source:
+            errors.append(f"{rel} uses && for missing-pointer guard; use || to catch half-initialized state")
 
     if errors:
         print("os candidate validation failed")

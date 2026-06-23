@@ -42,7 +42,7 @@ long init_buffer_421(void){
 
 long insert_buffer_421(int i){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized or has been deleted\n");
 		return -1;
 	}
@@ -67,19 +67,16 @@ long insert_buffer_421(int i){
 
 long print_buffer_421(){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized\n");
 		return -1;
 	}
 
+	node_421_t* curr = buffer.read;
 
 	for(int i = 0; i < SIZE_OF_BUFFER; i++){
-//		node_421* curr = buffer.read;
-
-		printf("NODE %d: %d\n", i, buffer.read->data);
-
-//		curr = curr->next;
-		buffer.read = buffer.read->next;
+		printf("NODE %d: %ld\n", i, (long)curr->data);
+		curr = curr->next;
 	}
 
 	return 0;
@@ -87,7 +84,7 @@ long print_buffer_421(){
 
 long delete_buffer_421(){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized\n");
 		return -1;
         }
@@ -113,6 +110,4 @@ long delete_buffer_421(){
 
 	return 0;
 }
-
-
 

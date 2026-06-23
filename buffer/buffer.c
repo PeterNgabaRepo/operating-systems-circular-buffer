@@ -48,7 +48,7 @@ SYSCALL_DEFINE0(init_buffer_421){
 
 SYSCALL_DEFINE1(insert_buffer_421, int, i){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized or has been deleted\n");
 		return -1;
 	}
@@ -73,19 +73,17 @@ SYSCALL_DEFINE1(insert_buffer_421, int, i){
 
 SYSCALL_DEFINE0(print_buffer_421){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized\n");
 		return -1;
 	}
 
+	struct node_421* curr = buffer.read;
+
 	int i;
 	for(i = 0; i < buffer.length; i++){
-//		struct node_421* curr = buffer.read;
-
-		printk("NODE %d: %d\n", i, buffer.read->data);
-
-		buffer.read = buffer.read->next;
-//		curr = curr->next;
+		printk("NODE %d: %ld\n", i, (long)curr->data);
+		curr = curr->next;
 	}
 
 	return 0;
@@ -93,7 +91,7 @@ SYSCALL_DEFINE0(print_buffer_421){
 
 SYSCALL_DEFINE0(delete_buffer_421){
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printk("Buffer has not been initialized\n");
 		return -1;
         }
@@ -120,7 +118,5 @@ SYSCALL_DEFINE0(delete_buffer_421){
 
 	return 0;
 }
-
-
 
 

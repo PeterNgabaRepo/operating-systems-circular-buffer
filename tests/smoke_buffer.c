@@ -26,11 +26,18 @@ int main(void)
         fprintf(stderr, "insert into full buffer should fail\n");
         return 1;
     }
+    if (print_buffer_421() != 0) {
+        fprintf(stderr, "first print should pass\n");
+        return 1;
+    }
+    if (print_buffer_421() != 0) {
+        fprintf(stderr, "second print should pass without mutating read cursor\n");
+        return 1;
+    }
     if (delete_buffer_421() != 0) {
-        fprintf(stderr, "delete after init should pass\n");
+        fprintf(stderr, "delete after print should pass\n");
         return 1;
     }
     puts("smoke_buffer passed");
     return 0;
 }
-
