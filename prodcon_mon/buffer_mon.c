@@ -30,9 +30,7 @@ long init_buffer_421(void) {
 	buffer.length = 0;
 
 	struct node_421* curr = (struct node_421*)malloc(sizeof(struct node_421));
-	for(int i = 0; i < DATA_LENGTH; i++){
-		curr->data[i] = '0';
-	}
+	memset(curr->data, 0, DATA_LENGTH);
 
 	struct node_421* head = curr;
 
@@ -40,9 +38,7 @@ long init_buffer_421(void) {
 
 		curr->next = (struct node_421*)malloc(sizeof(struct node_421));
 
-		for(int i = 0; i < DATA_LENGTH; i++){
-			curr->next->data[i] = '0';
-		}
+		memset(curr->next->data, 0, DATA_LENGTH);
 
 		curr = curr->next;
 	}
@@ -61,11 +57,21 @@ long init_buffer_421(void) {
 }
 
 
-long enqueue_buffer_421(char * data) {
+long enqueue_buffer_421(const void *data) {
 	// Write your code to enqueue data into the buffer
 //	buffer.length = 0;
-	if(!buffer.read && !buffer.write){
+	if(!data){
+		printf("Cannot enqueue null data\n");
+		return -1;
+	}
+
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized\n");
+		return -1;
+	}
+
+	if(isFull()){
+		printf("Cannot enqueue, buffer is full\n");
 		return -1;
 	}
 
@@ -77,18 +83,13 @@ long enqueue_buffer_421(char * data) {
 //	waiting = 1;
 
 	buffer.length++;
-	memcpy(buffer.write->data, data, 1024);
+	memcpy(buffer.write->data, data, DATA_LENGTH);
 	buffer.write = buffer.write->next;
 
 //	print_semaphores();
 
-	printf("ENQUEUING: ");
-
-	for(int i = 0; i < DATA_LENGTH; i++){
-		printf("%c", data[i]);
-	}
-
-	printf("\n");
+	const unsigned char *bytes = data;
+	printf("ENQUEUING: %d bytes (first=0x%02x)\n", DATA_LENGTH, bytes[0]);
 
 	printLen();
 
@@ -99,12 +100,22 @@ long enqueue_buffer_421(char * data) {
 	return 0;
 }
 
-long dequeue_buffer_421(char * data) {
+long dequeue_buffer_421(void *data) {
 
 	// Write your code to dequeue data from the buffer
 
-	if(!buffer.read && !buffer.write){
+	if(!data){
+		printf("Cannot dequeue into null data\n");
+		return -1;
+	}
+
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized\n");
+		return -1;
+	}
+
+	if(isEmpty()){
+		printf("Cannot dequeue, buffer is empty\n");
 		return -1;
 	}
 
@@ -115,19 +126,12 @@ long dequeue_buffer_421(char * data) {
 
 //	waiting = 1;
 
-	printf("\n");
-	printf("DEQUEUING: ");
-
-	memcpy(data, buffer.read->data, 1024);
+	memcpy(data, buffer.read->data, DATA_LENGTH);
 	buffer.read = buffer.read->next;
 	buffer.length--;
 
-
-	for(int i = 0; i < DATA_LENGTH; i++){
-		printf("%c", data[i]);
-	}
-
-	printf("\n");
+	const unsigned char *bytes = data;
+	printf("DEQUEUING: %d bytes (first=0x%02x)\n", DATA_LENGTH, bytes[0]);
 
 	printLen();
 
@@ -149,7 +153,7 @@ long delete_buffer_421(void) {
 	}
 */
 
-	if(!buffer.read && !buffer.write){
+	if(!buffer.read || !buffer.write){
 		printf("Buffer has not been initialized\n");
 		return -1;
 	}

@@ -10,7 +10,7 @@ extern "C" {
 
 typedef struct node_421 {
     struct node_421 *next;
-    char data[DATA_LENGTH];
+    unsigned char data[DATA_LENGTH];
 } node_421_t;
 
 typedef struct ring_buffer_421 {
@@ -20,8 +20,8 @@ typedef struct ring_buffer_421 {
 } ring_buffer_421_t;
 
 long init_buffer_421(void);
-long enqueue_buffer_421(char *data);
-long dequeue_buffer_421(char *data);
+long enqueue_buffer_421(const void *data);
+long dequeue_buffer_421(void *data);
 long delete_buffer_421(void);
 
 #ifdef __cplusplus

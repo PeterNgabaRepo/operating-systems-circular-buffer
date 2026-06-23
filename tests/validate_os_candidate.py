@@ -84,6 +84,29 @@ def main() -> None:
         if phrase not in sem_smoke:
             errors.append(f"tests/smoke_sem.c missing full/wraparound validation phrase: {phrase}")
 
+    mon_header = (ROOT / "prodcon_mon/buffer_mon.h").read_text(encoding="utf-8", errors="replace")
+    if "long enqueue_buffer_421(const void *data);" not in mon_header:
+        errors.append("prodcon_mon/buffer_mon.h should expose enqueue_buffer_421 as const void *")
+    if "long dequeue_buffer_421(void *data);" not in mon_header:
+        errors.append("prodcon_mon/buffer_mon.h should expose dequeue_buffer_421 as void *")
+
+    mon_source = (ROOT / "prodcon_mon/buffer_mon.c").read_text(encoding="utf-8", errors="replace")
+    for phrase in ["if(isFull())", "if(isEmpty())", "memcpy(buffer.write->data, data, DATA_LENGTH)", "memcpy(data, buffer.read->data, DATA_LENGTH)"]:
+        if phrase not in mon_source:
+            errors.append(f"prodcon_mon/buffer_mon.c missing monitor behavior guard/copy phrase: {phrase}")
+
+    mon_smoke = (ROOT / "tests/smoke_mon.c").read_text(encoding="utf-8", errors="replace")
+    for phrase in [
+        "21st enqueue into full monitor buffer should fail",
+        "SIZE_OF_BUFFER + WRAP_EXTRA",
+        "pre-wrap dequeued data mismatch",
+        "post-wrap dequeued data mismatch",
+        "dequeue from empty monitor buffer should fail",
+        "memcmp(data, expected, DATA_LENGTH)",
+    ]:
+        if phrase not in mon_smoke:
+            errors.append(f"tests/smoke_mon.c missing expected-behavior validation phrase: {phrase}")
+
     if errors:
         print("os candidate validation failed")
         for error in errors:
