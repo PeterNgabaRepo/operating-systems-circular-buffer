@@ -3,6 +3,8 @@ CFLAGS ?= -Wall -Wextra -pedantic
 PTHREAD_FLAGS ?= -pthread
 BUILD_DIR := build
 TIMEOUT := perl -e 'alarm 10; exec @ARGV'
+PREPARE_EXEC := xattr -c
+SIGN_EXEC := codesign --force --sign -
 
 .PHONY: all compile validate test runtime-test clean
 
@@ -13,12 +15,18 @@ $(BUILD_DIR):
 
 $(BUILD_DIR)/smoke_buffer: buffer/buffer_user.c tests/smoke_buffer.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
+	$(PREPARE_EXEC) $@ 2>/dev/null || true
+	$(SIGN_EXEC) $@ 2>/dev/null || true
 
 $(BUILD_DIR)/smoke_sem: prodcon_sem/buffer_user_sem.c tests/smoke_sem.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $^ $(PTHREAD_FLAGS) -o $@
+	$(PREPARE_EXEC) $@ 2>/dev/null || true
+	$(SIGN_EXEC) $@ 2>/dev/null || true
 
 $(BUILD_DIR)/smoke_mon: prodcon_mon/buffer_mon.c tests/smoke_mon.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $^ $(PTHREAD_FLAGS) -o $@
+	$(PREPARE_EXEC) $@ 2>/dev/null || true
+	$(SIGN_EXEC) $@ 2>/dev/null || true
 
 compile: $(BUILD_DIR)/smoke_buffer $(BUILD_DIR)/smoke_sem $(BUILD_DIR)/smoke_mon
 
