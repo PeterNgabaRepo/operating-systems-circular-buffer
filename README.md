@@ -2,7 +2,7 @@
 
 NASA-inspired operating systems coursework for UMBC CMSC 421.
 
-This project implements a bounded circular buffer in C and then extends the same core idea into producer/consumer synchronization using semaphores and monitor-style condition variables. The original assignment also included Linux kernel syscall variants. This cleaned portfolio candidate preserves the coursework structure while removing generated binaries and adding short deterministic smoke tests for local validation.
+This project implements a bounded circular buffer in C and then extends the same core idea into producer/consumer synchronization using semaphores and monitor-style condition variables. The original assignment also included Linux kernel syscall variants. This version preserves the coursework structure while removing generated binaries and adding short deterministic smoke tests for local validation.
 
 ## What It Demonstrates
 
@@ -19,7 +19,7 @@ This project implements a bounded circular buffer in C and then extends the same
 - `buffer/`: Part 1 circular buffer implementation and user-space test.
 - `prodcon_sem/`: Part 2 producer/consumer bounded buffer with semaphores.
 - `prodcon_mon/`: Part 3 producer/consumer bounded buffer with monitor-style condition variables.
-- `tests/`: Short smoke tests for portfolio/CI-style validation.
+- `tests/`: Short smoke tests for local validation.
 
 ## Local Validation
 
@@ -31,7 +31,7 @@ make -f Makefile.portfolio compile
 make -f Makefile.portfolio clean
 ```
 
-The portfolio compile target builds short smoke binaries without running the long original coursework harnesses. The original tests are preserved in each assignment folder.
+The compile target builds short smoke binaries without running the long original coursework harnesses. The original tests are preserved in each assignment folder.
 
 Optional runtime smoke execution is available with:
 
@@ -39,20 +39,10 @@ Optional runtime smoke execution is available with:
 make -f Makefile.portfolio runtime-test
 ```
 
-In this Codex sandbox on macOS, the `smoke_buffer` runtime binary can hang even though the source compiles. Keep runtime execution as a review gate for a normal local terminal or Linux environment before publication.
-
-## Publication Handoff
-
-After the empty GitHub repo `PeterNgabaRepo/operating-systems-circular-buffer` exists and GitHub CLI/HTTPS authentication is configured, the guarded push helper can publish this checkpointed repo:
-
-```bash
-scripts/push_to_github.sh "APPROVE OS REPO"
-```
-
-The helper refuses to push if the approval phrase is wrong, the working tree is dirty, the target repo is unreachable, or `origin` points somewhere unexpected.
+The runtime test prints labeled sections for the simple buffer, semaphore producer-consumer buffer, and monitor producer-consumer buffer. The smoke tests intentionally include a few negative-path checks before initialization, then verify the expected valid behavior.
 
 ## Notes
 
 - The kernel syscall files are preserved as coursework artifacts but are not rebuilt in this macOS environment.
-- The semaphore implementation uses POSIX APIs that are deprecated on macOS, so macOS builds may show warnings even when the code compiles and runs.
+- The user-space semaphore smoke harness includes a small local counting-semaphore compatibility layer for macOS so the diagnostic counter output remains meaningful.
 - This is presented as honest systems coursework, not as production aerospace software.
